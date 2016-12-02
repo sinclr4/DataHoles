@@ -2,17 +2,28 @@
 library(shinydashboard)
 
 ui <- dashboardPage(
-  dashboardHeader(title = "Basic dashboard"),
-  dashboardSidebar(),
+  dashboardHeader(title = "Shiny Data Holes dashboard"),
+  dashboardSidebar(
+    sidebarMenu(
+    menuItem("Mental Health Dashboard", tabName = "mentalhealth", icon = icon("dashboard")),
+    menuItem("Widgets", tabName = "widgets", icon = icon("th"))
+  )
+  ),
   dashboardBody(
-    # Boxes need to be put in a row (or column)
-    fluidRow(
-      box(plotOutput("plot1", height = 250)),
-      
-      box(
-        title = "Controls",
-        sliderInput("slider", "Number of observations:", 1, 100, 50)
-      )
+
+    tabItems(
+      tabItem(tabName = "mentalhealth",
+              # Boxes need to be put in a row (or column)
+              fluidRow(
+                box(plotOutput("plot1", height = 250)),
+                
+                box(
+                  title = "Controls",
+                  sliderInput("slider", "Number of observations:", 1, 100, 50)
+                )
+              )
+              
+              )
     )
   )
 )
