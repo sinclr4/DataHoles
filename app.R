@@ -1,10 +1,13 @@
 ## app.R ##
 library(shinydashboard)
+library(SPARQL)
+library(curl)
 
 ui <- dashboardPage(
   dashboardHeader(title = "Shiny Data Holes dashboard"),
   dashboardSidebar(
     sidebarMenu(
+      menuItem("System Overview Dashboard", tabName = "system", icon = icon("dashboard")),
     menuItem("Mental Health Dashboard", tabName = "mentalhealth", icon = icon("dashboard")),
     menuItem("Widgets", tabName = "widgets", icon = icon("th"))
   )
@@ -23,9 +26,12 @@ ui <- dashboardPage(
                 )
               )
               
-              )
+              ),
+      tabItem(tabName = 'system',
+              fluidRow( infoBoxOutput("totalBox"))
     )
   )
+)
 )
 
 server <- function(input, output) {
@@ -36,6 +42,22 @@ server <- function(input, output) {
     data <- histdata[seq_len(input$slider)]
     hist(data)
   })
-}
+  endpoint <- 'http://statistics.gov.scot/sparql'
+  query <- 'SELECT (count(*) as ?count) WHERE {
+   ?s ?p ?o .
+}'
+  
+  qd <- SPARQL(endpoint,query)
+  df <-qd$results
+  y = as.integer(df$count)
+ 
+  output$totalBox <- renderInfoBox({
+    infoBox(
+      "Total Triples", paste0(y), icon = icon("list"),
+      color = "purple"
+    )
+  })
+  
+  }
 
 shinyApp(ui, server)
