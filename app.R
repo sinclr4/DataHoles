@@ -30,7 +30,8 @@ ui <- dashboardPage(
               ),
       tabItem(tabName = 'system',
               fluidRow( infoBoxOutput("totalBox")),
-              fluidRow( infoBoxOutput("totalDSBox"))
+              fluidRow( infoBoxOutput("totalDSBox")),
+              fluidRow( infoBoxOutput("updatesBox"))
     ),
     tabItem(tabName = 'datasets',
             fluidRow(tableOutput('datasets'))
@@ -83,15 +84,33 @@ WHERE {
     )
   })
     
-  query <- 'SELECT *
+  query2 <- 'SELECT *
 WHERE {
   ?obs <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/linked-data/cube#DataSet>.
   ?obs <http://www.w3.org/2000/01/rdf-schema#label> ?Name.
   OPTIONAL{ ?obs <http://purl.org/dc/terms/description> ?Description.} }'
+  qd <- SPARQL(endpoint,query2)
+  df2 <-qd$results
+  output$datasets <- renderTable(df2)
+
+  query <- 'PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT (count(*) as ?count)
+  WHERE {
+  ?obs <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/linked-data/cube#DataSet>.
+  ?obs <http://www.w3.org/2000/01/rdf-schema#label> ?Name.
+  OPTIONAL{ ?obs <http://purl.org/dc/terms/modified> ?modified} 
+  FILTER (?modified > "2016-09-01T00:00:00"^^xsd:dateTime)}'
+  
   qd <- SPARQL(endpoint,query)
   df <-qd$results
-  output$datasets <- renderTable(df)
-
+  updatecount = as.integer(df$count)
+  
+  output$updatesBox <- renderInfoBox({
+    infoBox(
+      "Total Updates", paste0(updatecount), icon = icon("list"),
+      color = "blue"
+    )
+  })
   
   }
 
