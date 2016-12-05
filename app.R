@@ -66,6 +66,7 @@ server <- function(input, output) {
     )
   })
   
+  #How many Data Sets are there
   query <- 'SELECT (count(*) as ?count)
 WHERE {
   ?obs <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/linked-data/cube#DataSet>.
@@ -78,7 +79,7 @@ WHERE {
   output$totalDSBox <- renderInfoBox({
     infoBox(
       "Total Datasest", paste0(dscount), icon = icon("list"),
-      color = "purple"
+      color = "green"
     )
   })
     
