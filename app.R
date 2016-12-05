@@ -9,7 +9,7 @@ ui <- dashboardPage(
     sidebarMenu(
       menuItem("System Overview Dashboard", tabName = "system", icon = icon("dashboard")),
     menuItem("Mental Health Dashboard", tabName = "mentalhealth", icon = icon("dashboard")),
-    menuItem("Widgets", tabName = "widgets", icon = icon("th"))
+    menuItem("Datasets", tabName = "datasets", icon = icon("th"))
   )
   ),
   dashboardBody(
@@ -22,14 +22,17 @@ ui <- dashboardPage(
                 
                 box(
                   title = "Controls",
-                  sliderInput("slider", "Number of observations:", 1, 100, 50),
-                  tableOutput('datasets')
+                  sliderInput("slider", "Number of observations:", 1, 100, 50)
+                  
                 )
               )
               
               ),
       tabItem(tabName = 'system',
               fluidRow( infoBoxOutput("totalBox"))
+    ),
+    tabItem(tabName = 'datasets',
+            fluidRow(tableOutput('datasets'))
     )
   )
 )
