@@ -22,7 +22,8 @@ ui <- dashboardPage(
                 
                 box(
                   title = "Controls",
-                  sliderInput("slider", "Number of observations:", 1, 100, 50)
+                  sliderInput("slider", "Number of observations:", 1, 100, 50),
+                  tableOutput('datasets')
                 )
               )
               
@@ -42,7 +43,9 @@ server <- function(input, output) {
     data <- histdata[seq_len(input$slider)]
     hist(data)
   })
-  endpoint <- 'http://statistics.gov.scot/sparql'
+  #endpoint <- 'http://statistics.gov.scot/sparql'
+  endpoint <- 'http://nhs.publishmydata.com/sparql'
+  #Query to return the number of triples in the store
   query <- 'SELECT (count(*) as ?count) WHERE {
    ?s ?p ?o .
 }'
@@ -50,13 +53,24 @@ server <- function(input, output) {
   qd <- SPARQL(endpoint,query)
   df <-qd$results
   y = as.integer(df$count)
- 
+  
   output$totalBox <- renderInfoBox({
     infoBox(
       "Total Triples", paste0(y), icon = icon("list"),
       color = "purple"
     )
   })
+  
+    
+  query <- 'SELECT *
+WHERE {
+  ?obs <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/linked-data/cube#DataSet>.
+  ?obs <http://www.w3.org/2000/01/rdf-schema#label> ?name.
+  OPTIONAL{ ?obs <http://purl.org/dc/terms/description> ?desc.} }'
+  qd <- SPARQL(endpoint,query)
+  df <-qd$results
+  output$datasets <- renderTable(df)
+
   
   }
 
