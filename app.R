@@ -29,7 +29,8 @@ ui <- dashboardPage(
               
               ),
       tabItem(tabName = 'system',
-              fluidRow( infoBoxOutput("totalBox"))
+              fluidRow( infoBoxOutput("totalBox")),
+              fluidRow( infoBoxOutput("totalDSBox"))
     ),
     tabItem(tabName = 'datasets',
             fluidRow(tableOutput('datasets'))
@@ -46,6 +47,7 @@ server <- function(input, output) {
     data <- histdata[seq_len(input$slider)]
     hist(data)
   })
+  
   #endpoint <- 'http://statistics.gov.scot/sparql'
   endpoint <- 'http://nhs.publishmydata.com/sparql'
   #Query to return the number of triples in the store
@@ -64,12 +66,27 @@ server <- function(input, output) {
     )
   })
   
+  query <- 'SELECT (count(*) as ?count)
+WHERE {
+  ?obs <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/linked-data/cube#DataSet>.
+  ?obs <http://www.w3.org/2000/01/rdf-schema#label> ?Name}'
+  
+  qd <- SPARQL(endpoint,query)
+  df <-qd$results
+  dscount = as.integer(df$count)
+  
+  output$totalDSBox <- renderInfoBox({
+    infoBox(
+      "Total Datasest", paste0(dscount), icon = icon("list"),
+      color = "purple"
+    )
+  })
     
   query <- 'SELECT *
 WHERE {
   ?obs <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/linked-data/cube#DataSet>.
-  ?obs <http://www.w3.org/2000/01/rdf-schema#label> ?name.
-  OPTIONAL{ ?obs <http://purl.org/dc/terms/description> ?desc.} }'
+  ?obs <http://www.w3.org/2000/01/rdf-schema#label> ?Name.
+  OPTIONAL{ ?obs <http://purl.org/dc/terms/description> ?Description.} }'
   qd <- SPARQL(endpoint,query)
   df <-qd$results
   output$datasets <- renderTable(df)
