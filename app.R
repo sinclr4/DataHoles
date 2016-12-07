@@ -9,6 +9,7 @@ ui <- dashboardPage(
     sidebarMenu(
       menuItem("System Overview Dashboard", tabName = "system", icon = icon("dashboard")),
     menuItem("Mental Health Dashboard", tabName = "mentalhealth", icon = icon("dashboard")),
+    menuItem("Privacy, Dignity & Wellbeing", tabName = "pdw", icon = icon("dashboard")),
     menuItem("Datasets", tabName = "datasets", icon = icon("th"))
   )
   ),
@@ -33,6 +34,10 @@ ui <- dashboardPage(
               fluidRow( infoBoxOutput("totalDSBox")),
               fluidRow( infoBoxOutput("updatesBox"))
     ),
+    tabItem(tabName = 'pdw',
+            fluidRow( infoBoxOutput("pdwtotalBox")),
+            fluidRow( tableOutput('pdwdatasets'))
+            ),
     tabItem(tabName = 'datasets',
             fluidRow(tableOutput('datasets'))
     )
@@ -67,6 +72,7 @@ server <- function(input, output) {
     )
   })
   
+  ##Copy from here to create a new block
   #How many Data Sets are there
   query <- 'SELECT (count(*) as ?count)
 WHERE {
@@ -84,6 +90,9 @@ WHERE {
     )
   })
     
+  ##End of copy
+  
+  
   query2 <- 'SELECT *
 WHERE {
   ?obs <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/linked-data/cube#DataSet>.
@@ -92,6 +101,27 @@ WHERE {
   qd <- SPARQL(endpoint,query2)
   df2 <-qd$results
   output$datasets <- renderTable(df2)
+  
+  querypdw <- 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+  SELECT (count(?value) as ?count) ?refArea
+  WHERE {
+  ?observation <http://purl.org/linked-data/cube#dataSet> <http://nhs.publishmydata.com/data/place-pdw>.
+  ?observation <http://nhs.publishmydata.com/def/measure-properties/score> ?value.
+  ?observation <http://nhs.publishmydata.com/def/dimension/refOrganisation> ?refArea
+  }
+  Group By ?refArea
+  HAVING ( ?count < 4 )'
+  qd <- SPARQL(endpoint,querypdw)
+  dfpdw <-qd$results
+  output$pdwdatasets <- renderTable(dfpdw)
+  
+  output$pdwtotalBox <- renderInfoBox({
+    infoBox(
+      "Total Points", 4, icon = icon("list"),
+      color = "purple"
+    )
+  })
 
   query <- 'PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 SELECT (count(*) as ?count)
@@ -107,7 +137,7 @@ SELECT (count(*) as ?count)
   
   output$updatesBox <- renderInfoBox({
     infoBox(
-      "Total Updates", paste0(updatecount), icon = icon("list"),
+      "Total Updates in last week", paste0(updatecount), icon = icon("list"),
       color = "blue"
     )
   })
