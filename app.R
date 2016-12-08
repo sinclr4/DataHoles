@@ -2,6 +2,7 @@
 library(shinydashboard)
 library(SPARQL)
 library(curl)
+library(httr)
 
 ui <- dashboardPage(
   dashboardHeader(title = "Shiny Data Holes dashboard"),
@@ -10,8 +11,10 @@ ui <- dashboardPage(
       menuItem("System Overview Dashboard", tabName = "system", icon = icon("dashboard")),
     menuItem("Mental Health Dashboard", tabName = "mentalhealth", icon = icon("dashboard")),
     menuItem("Privacy, Dignity & Wellbeing", tabName = "pdw", icon = icon("dashboard")),
-    menuItem("Datasets", tabName = "datasets", icon = icon("th"))
-  )
+    menuItem("Datasets", tabName = "datasets", icon = icon("th")),
+    menuItem("Results Views", tabName = "resultsViews", icon = icon("th")),
+    menuItem("Mental Health Trusts", tabName = "mentalHealthTrusts", icon = icon("th"))
+    )
   ),
   dashboardBody(
 
@@ -32,14 +35,20 @@ ui <- dashboardPage(
       tabItem(tabName = 'system',
               fluidRow( infoBoxOutput("totalBox")),
               fluidRow( infoBoxOutput("totalDSBox")),
-              fluidRow( infoBoxOutput("updatesBox"))
-    ),
+              fluidRow( infoBoxOutput("updatesBox"))),
+      
     tabItem(tabName = 'pdw',
             fluidRow( infoBoxOutput("pdwtotalBox")),
-            fluidRow( tableOutput('pdwdatasets'))
-            ),
-    tabItem(tabName = 'datasets',
-            fluidRow(tableOutput('datasets'))
+            fluidRow( tableOutput('pdwdatasets'))),
+    
+    tabItem(tabName = 'datasets', 
+            fluidRow(tableOutput('datasets'))),
+            
+    tabItem(tabName = 'resultsViews', 
+            fluidRow(tableOutput('resultsViews'))),
+    
+    tabItem(tabName = 'mentalHealthTrusts', 
+            fluidRow(tableOutput('mentalHealthTrusts'))
     )
   )
 )
@@ -141,6 +150,15 @@ SELECT (count(*) as ?count)
       color = "blue"
     )
   })
+  
+  resultsViewsRaw <- GET("http://mynhs-scorecard-webapi-integration.azurewebsites.net/api/shinydataholes/resultsviews")
+  resultsViewsData <- jsonlite::fromJSON(content(resultsViewsRaw, as="text"),  flatten=TRUE)
+
+  organisationsRaw <- GET("http://mynhs-scorecard-webapi-integration.azurewebsites.net/api/shinydataholes/OrganisationsByResultsViewId/1054")
+  organisationsData <- jsonlite::fromJSON(content(organisationsRaw, as="text"),  flatten=TRUE)
+
+  output$resultsViews <- renderTable(resultsViewsData)
+  output$mentalHealthTrusts <- renderTable(organisationsData)
   
   }
 
