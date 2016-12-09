@@ -11,6 +11,7 @@ ui <- dashboardPage(
       menuItem("System Overview Dashboard", tabName = "system", icon = icon("dashboard")),
     menuItem("Mental Health Dashboard", tabName = "mentalhealth", icon = icon("dashboard")),
     menuItem("Privacy, Dignity & Wellbeing", tabName = "pdw", icon = icon("dashboard")),
+    menuItem("Worst Organisations", tabName = "orgs", icon = icon("dashboard")),
     menuItem("Datasets", tabName = "datasets", icon = icon("th")),
     menuItem("Results Views", tabName = "resultsViews", icon = icon("th")),
     menuItem("Mental Health Trusts", tabName = "mentalHealthTrusts", icon = icon("th"))
@@ -43,6 +44,9 @@ ui <- dashboardPage(
     
     tabItem(tabName = 'datasets', 
             fluidRow(tableOutput('datasets'))),
+    
+    tabItem(tabName = 'orgs', 
+            fluidRow(tableOutput('orgsdatasets'))),
             
     tabItem(tabName = 'resultsViews', 
             fluidRow(tableOutput('resultsViews'))),
@@ -113,13 +117,14 @@ WHERE {
   
   querypdw <- 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-  SELECT (count(?value) as ?count) ?refArea
+  SELECT (count(?value) as ?count) ?refArea ?org_name
   WHERE {
   ?observation <http://purl.org/linked-data/cube#dataSet> <http://nhs.publishmydata.com/data/place-pdw>.
   ?observation <http://nhs.publishmydata.com/def/measure-properties/score> ?value.
-  ?observation <http://nhs.publishmydata.com/def/dimension/refOrganisation> ?refArea
+  ?observation <http://nhs.publishmydata.com/def/dimension/refOrganisation> ?refArea .
+?refArea rdfs:label ?org_name
   }
-  Group By ?refArea
+  Group By ?refArea ?org_name
   HAVING ( ?count < 4 )'
   qd <- SPARQL(endpoint,querypdw)
   dfpdw <-qd$results
@@ -150,7 +155,31 @@ SELECT (count(*) as ?count)
       color = "blue"
     )
   })
+
+  queryorgds <- 'PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+  PREFIX owl: <http://www.w3.org/2002/07/owl#>
+  PREFIX qb: <http://purl.org/linked-data/cube#>
+  PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+  PREFIX sdmx: <http://purl.org/linked-data/sdmx/2009/concept#>
+  PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+  PREFIX void: <http://rdfs.org/ns/void#>
+  PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+  SELECT ?org_name (count(distinct ?ds) as ?count) 
+  WHERE {
+  ?ds a <http://publishmydata.com/def/dataset#Dataset> .
+  ?obs qb:dataSet ?ds .
+  ?obs  <http://nhs.publishmydata.com/def/dimension/refOrganisation> ?refOrg .
+  ?refOrg rdfs:label ?org_name
+  }
+  Group By ?org_name 
+  Order By ?count'
+  qd <- SPARQL(endpoint,queryorgds)
+  dforgds <-qd$results
+  output$orgsdatasets <- renderTable(dforgds)
   
+    
   resultsViewsRaw <- GET("http://mynhs-scorecard-webapi-integration.azurewebsites.net/api/shinydataholes/resultsviews")
   resultsViewsData <- jsonlite::fromJSON(content(resultsViewsRaw, as="text"),  flatten=TRUE)
 
