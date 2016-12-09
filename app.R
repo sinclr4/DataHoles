@@ -5,18 +5,28 @@ library(curl)
 library(httr)
 
 ui <- dashboardPage(
-  dashboardHeader(title = "Shiny Data Holes dashboard"),
+  dashboardHeader(title = "Shiny Data Holes dashboard",
+                  dropdownMenu(type = "messages",
+                              
+                               messageItem(
+                                 from = "Support",
+                                 message = "The new Shiny Data Holes project is ready.",
+                                 icon = icon("life-ring"),
+                                 time = "2016-12-016"
+                               )
+                  )
+                  ),
   dashboardSidebar(
     sidebarMenu(
       menuItem("System Overview Dashboard", tabName = "system", icon = icon("dashboard")),
-   # menuItem("Mental Health Dashboard", tabName = "mentalhealth", icon = icon("dashboard")),
     menuItem("Privacy, Dignity & Wellbeing", tabName = "pdw", icon = icon("dashboard")),
     menuItem("Worst Mental Health Orgs", tabName = "orgs", icon = icon("dashboard")),
     menuItem("Datasets", tabName = "datasets", icon = icon("th")),
     menuItem("Results Views", tabName = "resultsViews", icon = icon("th")),
-    menuItem("Mental Health Trusts", tabName = "mentalHealthTrusts", icon = icon("th"))
+    menuItem("Mental Health Trusts", tabName = "mentalHealthTrusts", icon = icon("th"), badgeLabel = "new", badgeColor = "green")
     )
   ),
+  
   dashboardBody(
 
     tabItems(
@@ -105,7 +115,7 @@ WHERE {
   
   querypdw <- 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-  SELECT (count(?value) as ?count) ?refArea ?org_name
+  SELECT (count(?value) as ?count) ?refArea ?org_name 
   WHERE {
   ?observation <http://purl.org/linked-data/cube#dataSet> <http://nhs.publishmydata.com/data/place-pdw>.
   ?observation <http://nhs.publishmydata.com/def/measure-properties/score> ?value.
