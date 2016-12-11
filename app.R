@@ -90,11 +90,15 @@ server <- function(input, output) {
   vector_selectOptions <- c(datasets[,1])
   names(vector_selectOptions) <- c(datasets[,2])
 
-  selectedDataset <- vector_selectOptions[1]  
+  selectedDataset <- vector_selectOptions[1]
 
   output$datasetSelector <- renderUI({
     selectInput("selectedDataset", "Choose Option:", as.list(vector_selectOptions)) 
   })
+  
+  #Missing Datapoints for PDW
+  df <- sparql.getMissingDataPointsByDatasetId(selectedDataset)
+  output$selectedDataset <- renderTable(df)
   
   }
 
