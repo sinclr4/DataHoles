@@ -85,6 +85,17 @@ server <- function(input, output) {
   # List of Mental Health Trusts
   output$mentalHealthTrusts <- renderTable(organisationsData)
   
+  # all data sets missing data and orgs
+  datasets <- sparql.listDatasetsQuery()
+  vector_selectOptions <- c(datasets[,1])
+  names(vector_selectOptions) <- c(datasets[,2])
+
+  selectedDataset <- vector_selectOptions[1]  
+
+  output$datasetSelector <- renderUI({
+    selectInput("selectedDataset", "Choose Option:", as.list(vector_selectOptions)) 
+  })
+  
   }
 
 shinyApp(ui, server)
