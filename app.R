@@ -6,6 +6,7 @@ library(httr)
 source("dashboardHeader.R")
 source("dashboardSideBar.R")
 source("dashboardBody.R")
+source("SparqlQueries/executeSparqlQuery.R")
 source("SparqlQueries/sparqlEndpoint.R")
 source("SparqlQueries/totalTriplesQueryDefinition.R")
 source("SparqlQueries/totalDataSetsQueryDefinition.R")
@@ -25,8 +26,7 @@ ui <- dashboardPage(
 server <- function(input, output) {
  
   # Total Triples
-  qd <- SPARQL(sparql_endpoint,total_triples_query_definition)
-  df <-qd$results
+  df <- sparql.totalTriplesQuery()
   y = as.integer(df$count)
   
   output$totalBox <- renderInfoBox({
@@ -37,8 +37,7 @@ server <- function(input, output) {
   })
   
   #How many Data Sets are there
-  qd <- SPARQL(sparql_endpoint,total_datasets_query_definition)
-  df <-qd$results
+  df <- sparql.totalDatasetsQuery()
   dscount = as.integer(df$count)
   
   output$totalDSBox <- renderInfoBox({
@@ -49,14 +48,12 @@ server <- function(input, output) {
   })
   
   # List Datasets
-  qd <- SPARQL(sparql_endpoint,list_datasets_query_definition)
-  df2 <-qd$results
+  df2 <- sparql.listDatasetsQuery()
   output$datasets <- renderTable(df2)
 
 
   #Missing Datapoints for PDW
-  qd <- SPARQL(sparql_endpoint,missing_datapoints_for_pdw_query_definition)
-  dfpdw <-qd$results
+  dfpdw <- sparql.missingDatapointsForPDWQuery()
   output$pdwdatasets <- renderTable(dfpdw)
   
   output$pdwtotalBox <- renderInfoBox({
@@ -67,8 +64,7 @@ server <- function(input, output) {
   })
 
   # Total updates in last week
-  qd <- SPARQL(sparql_endpoint,total_updates_last_week_query_definition)
-  df <-qd$results
+  df <- sparql.totalUpdatesLastWeekQuery()
   updatecount = as.integer(df$count)
   
   output$updatesBox <- renderInfoBox({
@@ -79,8 +75,8 @@ server <- function(input, output) {
   })
 
   # Worst Mental Health Trusts
-  qd <- SPARQL(sparql_endpoint,worst_mental_health_orgs_query_definition)
-  dforgds <-qd$results
+  #qd <- SPARQL(sparql_endpoint,worst_mental_health_orgs_query_definition)
+  dforgds <- sparql.worstMentalHealthOrgsQuery()
   output$orgsdatasets <- renderTable(dforgds)
   
   # List of Results Views
