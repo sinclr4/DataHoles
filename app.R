@@ -3,76 +3,29 @@ library(shinydashboard)
 library(SPARQL)
 library(curl)
 library(httr)
+source("dashboardHeader.R")
+source("dashboardSideBar.R")
+source("dashboardBody.R")
+source("SparqlQueries/sparqlEndpoint.R")
+source("SparqlQueries/totalTriplesQueryDefinition.R")
+source("SparqlQueries/totalDataSetsQueryDefinition.R")
+source("SparqlQueries/listDataSetsQueryDefinition.R")
+source("SparqlQueries/missingDataPointsPDWQueryDefinition.R")
+source("SparqlQueries/worstMentalHealthOrgsQueryDefinition.R")
+source("SparqlQueries/totalUpdatesLastWeekQueryDefinition.R")
+source("ScorecardWebApiQueries/getResultsViews.R")
+source("ScorecardWebApiQueries/getMentalHealthTrusts.R")
 
 ui <- dashboardPage(
-  dashboardHeader(title = "Shiny Data Holes dashboard",
-                  dropdownMenu(type = "messages",
-                              
-                               messageItem(
-                                 from = "Support",
-                                 message = "The new Shiny Data Holes project is ready.",
-                                 icon = icon("life-ring"),
-                                 time = "2016-12-016"
-                               )
-                  )
-                  ),
-  dashboardSidebar(
-    sidebarMenu(
-      menuItem("System Overview Dashboard", tabName = "system", icon = icon("dashboard")),
-    menuItem("Privacy, Dignity & Wellbeing", tabName = "pdw", icon = icon("dashboard")),
-    menuItem("Worst Mental Health Orgs", tabName = "orgs", icon = icon("dashboard")),
-    menuItem("Datasets", tabName = "datasets", icon = icon("th")),
-    menuItem("Results Views", tabName = "resultsViews", icon = icon("th")),
-    menuItem("Mental Health Trusts", tabName = "mentalHealthTrusts", icon = icon("th"), badgeLabel = "new", badgeColor = "green")
-    )
-  ),
-  
-  dashboardBody(
-
-    tabItems(
-
-      tabItem(tabName = 'system',
-              fluidRow( infoBoxOutput("totalBox")),
-              fluidRow( infoBoxOutput("totalDSBox")),
-              fluidRow( infoBoxOutput("updatesBox"))),
-      
-    tabItem(tabName = 'pdw',
-            fluidRow( infoBoxOutput("pdwtotalBox")),
-            fluidRow( tableOutput('pdwdatasets'))),
-    
-    tabItem(tabName = 'datasets', 
-            fluidRow(tableOutput('datasets'))),
-    
-    tabItem(tabName = 'orgs', 
-            fluidRow(tableOutput('orgsdatasets'))),
-            
-    tabItem(tabName = 'resultsViews', 
-            fluidRow(tableOutput('resultsViews'))),
-    
-    tabItem(tabName = 'mentalHealthTrusts', 
-            fluidRow(tableOutput('mentalHealthTrusts'))
-    )
-  )
-)
+  dashboard_header,
+  dashboard_sidebar,
+  dashboard_body
 )
 
 server <- function(input, output) {
-  set.seed(122)
-  histdata <- rnorm(500)
-  
-  output$plot1 <- renderPlot({
-    data <- histdata[seq_len(input$slider)]
-    hist(data)
-  })
-  
-  #endpoint <- 'http://statistics.gov.scot/sparql'
-  endpoint <- 'http://nhs.publishmydata.com/sparql'
-  #Query to return the number of triples in the store
-  query <- 'SELECT (count(*) as ?count) WHERE {
-   ?s ?p ?o .
-}'
-  
-  qd <- SPARQL(endpoint,query)
+ 
+  # Total Triples
+  qd <- SPARQL(sparql_endpoint,total_triples_query_definition)
   df <-qd$results
   y = as.integer(df$count)
   
@@ -83,14 +36,8 @@ server <- function(input, output) {
     )
   })
   
-  ##Copy from here to create a new block
   #How many Data Sets are there
-  query <- 'SELECT (count(*) as ?count)
-WHERE {
-  ?obs <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/linked-data/cube#DataSet>.
-  ?obs <http://www.w3.org/2000/01/rdf-schema#label> ?Name}'
-  
-  qd <- SPARQL(endpoint,query)
+  qd <- SPARQL(sparql_endpoint,total_datasets_query_definition)
   df <-qd$results
   dscount = as.integer(df$count)
   
@@ -100,31 +47,15 @@ WHERE {
       color = "green"
     )
   })
-    
-  ##End of copy
   
-  
-  query2 <- 'SELECT *
-WHERE {
-  ?obs <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/linked-data/cube#DataSet>.
-  ?obs <http://www.w3.org/2000/01/rdf-schema#label> ?Name.
-  OPTIONAL{ ?obs <http://purl.org/dc/terms/description> ?Description.} }'
-  qd <- SPARQL(endpoint,query2)
+  # List Datasets
+  qd <- SPARQL(sparql_endpoint,list_datasets_query_definition)
   df2 <-qd$results
   output$datasets <- renderTable(df2)
-  
-  querypdw <- 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-  SELECT (count(?value) as ?count) ?refArea ?org_name 
-  WHERE {
-  ?observation <http://purl.org/linked-data/cube#dataSet> <http://nhs.publishmydata.com/data/place-pdw>.
-  ?observation <http://nhs.publishmydata.com/def/measure-properties/score> ?value.
-  ?observation <http://nhs.publishmydata.com/def/dimension/refOrganisation> ?refArea .
-?refArea rdfs:label ?org_name
-  }
-  Group By ?refArea ?org_name
-  HAVING ( ?count < 4 )'
-  qd <- SPARQL(endpoint,querypdw)
+
+  #Missing Datapoints for PDW
+  qd <- SPARQL(sparql_endpoint,missing_datapoints_for_pdw_query_definition)
   dfpdw <-qd$results
   output$pdwdatasets <- renderTable(dfpdw)
   
@@ -135,15 +66,8 @@ WHERE {
     )
   })
 
-  query <- 'PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-SELECT (count(*) as ?count)
-  WHERE {
-  ?obs <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/linked-data/cube#DataSet>.
-  ?obs <http://www.w3.org/2000/01/rdf-schema#label> ?Name.
-  OPTIONAL{ ?obs <http://purl.org/dc/terms/modified> ?modified} 
-  FILTER (?modified > "2016-09-01T00:00:00"^^xsd:dateTime)}'
-  
-  qd <- SPARQL(endpoint,query)
+  # Total updates in last week
+  qd <- SPARQL(sparql_endpoint,total_updates_last_week_query_definition)
   df <-qd$results
   updatecount = as.integer(df$count)
   
@@ -154,37 +78,15 @@ SELECT (count(*) as ?count)
     )
   })
 
-  queryorgds <- 'PREFIX dcat: <http://www.w3.org/ns/dcat#>
-PREFIX dcterms: <http://purl.org/dc/terms/>
-  PREFIX owl: <http://www.w3.org/2002/07/owl#>
-  PREFIX qb: <http://purl.org/linked-data/cube#>
-  PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-  PREFIX sdmx: <http://purl.org/linked-data/sdmx/2009/concept#>
-  PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-  PREFIX void: <http://rdfs.org/ns/void#>
-  PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-  SELECT ?org_name (count(distinct ?ds) as ?count) 
-  WHERE {
-  ?ds a <http://publishmydata.com/def/dataset#Dataset> .
-  ?obs qb:dataSet ?ds .
-  ?obs  <http://nhs.publishmydata.com/def/dimension/refOrganisation> ?refOrg .
-  ?refOrg rdfs:label ?org_name
-  }
-  Group By ?org_name 
-  Order By ?count'
-  qd <- SPARQL(endpoint,queryorgds)
+  # Worst Mental Health Trusts
+  qd <- SPARQL(sparql_endpoint,worst_mental_health_orgs_query_definition)
   dforgds <-qd$results
   output$orgsdatasets <- renderTable(dforgds)
   
-    
-  resultsViewsRaw <- GET("http://mynhs-scorecard-webapi-integration.azurewebsites.net/api/shinydataholes/resultsviews")
-  resultsViewsData <- jsonlite::fromJSON(content(resultsViewsRaw, as="text"),  flatten=TRUE)
-
-  organisationsRaw <- GET("http://mynhs-scorecard-webapi-integration.azurewebsites.net/api/shinydataholes/OrganisationsByResultsViewId/1054")
-  organisationsData <- jsonlite::fromJSON(content(organisationsRaw, as="text"),  flatten=TRUE)
-
+  # List of Results Views
   output$resultsViews <- renderTable(resultsViewsData)
+
+  # List of Mental Health Trusts
   output$mentalHealthTrusts <- renderTable(organisationsData)
   
   }
