@@ -36,7 +36,7 @@ sparql.worstMentalHealthOrgsQuery <- function(){
   result
 }
 
-sparql.getMissingDataPointsByDatasetId <- function(datasetId){
-  result <- sparql.executeQuery(sparql_endpoint, queries.getMissingDataPointsByDatasetId(datasetId))
+queries.getMissingDataPointsByDatasetId <- function(datasetId){
+  result <- sparql.executeQuery(sparql_endpoint, queries.getMissingDataPointsById(datasetId))
   result
 }

@@ -14,6 +14,7 @@ source("SparqlQueries/listDataSetsQueryDefinition.R")
 source("SparqlQueries/missingDataPointsPDWQueryDefinition.R")
 source("SparqlQueries/worstMentalHealthOrgsQueryDefinition.R")
 source("SparqlQueries/totalUpdatesLastWeekQueryDefinition.R")
+source("SparqlQueries/parameterisedMissingDataPoints.R")
 source("ScorecardWebApiQueries/getResultsViews.R")
 source("ScorecardWebApiQueries/getMentalHealthTrusts.R")
 
@@ -97,8 +98,8 @@ server <- function(input, output) {
   })
   
   #Missing Datapoints for PDW
-  df <- sparql.getMissingDataPointsByDatasetId(selectedDataset)
-  output$selectedDataset <- renderTable(df)
+  #df <- sparql.getMissingDataPointsByDatasetId(selectedDataset)
+  #output$selectedDataset <- renderTable(df)
   
   }
 
