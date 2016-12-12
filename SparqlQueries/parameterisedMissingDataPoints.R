@@ -1,6 +1,6 @@
 # parameterised version of missing datapoints query
 
-queries.getMissingDataPointsByDatasetId <- function(datasetId){
+queries.getMissingDataPointsById <- function(datasetId){
   a <- 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
   SELECT (count(?value) as ?count) ?refArea ?org_name 
   WHERE {
