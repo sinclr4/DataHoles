@@ -37,6 +37,17 @@ server <- function(input, output) {
     )
   })
   
+  output$logo <- renderImage({
+    (list(
+        src = "img/FireBreak.jpg",
+        contentType = "image/jpg",
+        alt = "Firebreak"
+      ))
+    
+  }, deleteFile = FALSE)
+  
+  
+  
   #How many Data Sets are there
   df <- sparql.totalDatasetsQuery()
   dscount = as.integer(df$count)

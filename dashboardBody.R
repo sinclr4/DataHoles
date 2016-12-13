@@ -6,8 +6,8 @@ dashboard_body <-   dashboardBody(
             fluidRow(h1("Shiny Dataholes Firebreak")),
             fluidRow(
               div("This idea is to use R, Shiny and SPARQL to get the data from http://nhs.publishmydata.com"), 
-               div(" to show the organisations that haven't provided us with all the data we need."))),
-           
+               div(" to show the organisations that haven't provided us with all the data we need.")),
+    imageOutput("logo")),
     tabItem(tabName = 'system',
             fluidRow(h1("System Overview")),
              infoBoxOutput("totalBox"),
