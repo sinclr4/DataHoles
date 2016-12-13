@@ -42,8 +42,14 @@ dashboard_body <-   dashboardBody(
               p("This will be a dynamic page. We can select from the dropdown and the output will change to reflect missing datapoints as per the current PDW tab."),
               p("The dropdown is currently populated such that the selectinput Id is the actual dataset endpoint reference. We can then modify the sparql query to use this a parameter to the query. This will be one of the next tasks on the to do list!"),
               p("Managed to parameterise the query, now we just need to make the table reactive...")),
-            uiOutput("datasetSelector"),
-            fluidRow(tableOutput("selectedDataset")))
+            # selectInput("selectedOptionId", 
+            #             label = "Choose a dataset to display",
+            #             choices = vector_select_options),
+              textOutput("selectedOption"),
+           uiOutput("datasetSelector"),
+            
+           fluidRow(tableOutput("pdwTable"))
+           )
           
     )
   )
