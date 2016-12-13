@@ -1,5 +1,6 @@
 dashboard_sidebar <-   dashboardSidebar(
   sidebarMenu(
+    menuItem("Introduction", tabName = "intro", icon = icon("dashboard")),
     menuItem("System Overview Dashboard", tabName = "system", icon = icon("dashboard")),
     menuItem("Privacy, Dignity & Wellbeing", tabName = "pdw", icon = icon("dashboard")),
     menuItem("Worst Mental Health Orgs", tabName = "orgs", icon = icon("dashboard")),
