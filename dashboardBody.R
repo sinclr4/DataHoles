@@ -5,14 +5,14 @@ dashboard_body <-   dashboardBody(
     tabItem(tabName = 'intro',
             fluidRow(h1("Shiny Dataholes Firebreak")),
             fluidRow(
-              p("This idea is to use R, Shiny and SPARQL to get the data from http://nhs.publishmydata.com"), 
-               p(" to show the organisations that haven't provided us with all the data we need."))),
+              div("This idea is to use R, Shiny and SPARQL to get the data from http://nhs.publishmydata.com"), 
+               div(" to show the organisations that haven't provided us with all the data we need."))),
            
     tabItem(tabName = 'system',
             fluidRow(h1("System Overview")),
-            fluidRow( infoBoxOutput("totalBox")),
-            fluidRow( infoBoxOutput("totalDSBox")),
-            fluidRow( infoBoxOutput("updatesBox"))),
+             infoBoxOutput("totalBox"),
+             infoBoxOutput("totalDSBox"),
+             infoBoxOutput("updatesBox")),
     
     tabItem(tabName = 'pdw',
             fluidRow(h1("Privacy, dignity and wellbeing")),
