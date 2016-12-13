@@ -87,19 +87,34 @@ server <- function(input, output) {
   output$mentalHealthTrusts <- renderTable(organisationsData)
   
   # all data sets missing data and orgs
-  datasets <- sparql.listDatasetsQuery()
-  vector_selectOptions <- c(datasets[,1])
-  names(vector_selectOptions) <- c(datasets[,2])
+  datasetsRaw <- sparql.listDatasetsQuery()
+  ds1 <- sapply(strsplit(as.character(datasetsRaw[,1]), "/"), tail, 1)
+  datasets <-  substr(ds1, 1, nchar(ds1)-1)
+  vector_selectOptions <- c(datasets)
+  names(vector_selectOptions) <- c(datasetsRaw[,2])
 
-  selectedDataset <- vector_selectOptions[1]
+  selected_dataset <- vector_selectOptions[1]
 
   output$datasetSelector <- renderUI({
-    selectInput("selectedDataset", "Choose Option:", as.list(vector_selectOptions)) 
+    selectInput("selectedOptionId", "Choose Option:", as.list(vector_selectOptions), selected_dataset) 
   })
   
+  # values <- reactiveValues(df_data = NULL)
+  # 
+  #  observeEvent(input$selectedOptionId, {
+  #    values$df_data <- sparql.getMissingDataPointsByDatasetId(input$selectedOptionId)    
+  #  })
+  
+  
   #Missing Datapoints for PDW
-  #df <- sparql.getMissingDataPointsByDatasetId(selectedDataset)
-  #output$selectedDataset <- renderTable(df)
+  df <- observe({
+    dq <- sparql.getMissingDataPointsByDatasetId(input$selectedOptionId)
+  output$pdwTable <- renderTable(dq)
+  })
+  
+  output$selectedOption <- renderText({
+    paste("You selected the following dataset: ", input$selectedOptionId)
+  })
   
   }
 
