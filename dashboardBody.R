@@ -1,4 +1,4 @@
-dashboard_body <-   dashboardBody(
+dashboard_body <- dashboardBody(
   
   tabItems(
     
@@ -8,11 +8,13 @@ dashboard_body <-   dashboardBody(
               div("This idea is to use R, Shiny and SPARQL to get the data from http://nhs.publishmydata.com"), 
                div(" to show the organisations that haven't provided us with all the data we need.")),
     imageOutput("logo")),
+    
     tabItem(tabName = 'system',
             fluidRow(h1("System Overview")),
              infoBoxOutput("totalBox"),
              infoBoxOutput("totalDSBox"),
-             infoBoxOutput("updatesBox")),
+             infoBoxOutput("updatesBox"),
+             infoBoxOutput("missingTrustsBox")),
     
     tabItem(tabName = 'pdw',
             fluidRow(h1("Privacy, dignity and wellbeing")),
@@ -37,19 +39,39 @@ dashboard_body <-   dashboardBody(
             fluidRow(tableOutput('mentalHealthTrusts'))),
 
     tabItem(tabName = 'missingDatasets',
-            fluidRow(h1("Missing Datapoints")),
             fluidRow(
-              p("This will be a dynamic page. We can select from the dropdown and the output will change to reflect missing datapoints as per the current PDW tab."),
-              p("The dropdown is currently populated such that the selectinput Id is the actual dataset endpoint reference. We can then modify the sparql query to use this a parameter to the query. This will be one of the next tasks on the to do list!"),
-              p("Managed to parameterise the query, now we just need to make the table reactive...")),
-            # selectInput("selectedOptionId", 
-            #             label = "Choose a dataset to display",
-            #             choices = vector_select_options),
+              h1("Missing Datapoints")),
+            fluidRow(
               textOutput("selectedOption"),
-           uiOutput("datasetSelector"),
+              uiOutput("datasetSelector")),
+            fluidRow(
+              tableOutput("pdwTable"))),
+  
+    tabItem(tabName = 'allTrusts',
             
-           fluidRow(tableOutput("pdwTable"))
-           )
-          
+            fluidRow(
+              h1("Mental Health Trusts"),
+              p("This demostrates finding differences in datasets between out existing Scorecard Api and the data currently loaded into publishmydata.")
+            ),
+            
+            mainPanel(
+              tabsetPanel(
+                tabPanel("Scorecard Api", 
+                   fluidRow(
+                     textOutput("numberOfTrusts"),
+                      tableOutput("mentalHealthTrusts2"))),
+                tabPanel("Publish My Data",  
+                   fluidRow(
+                     tableOutput('allTrusts'))),
+                tabPanel("Missing", 
+                   fluidRow(
+                     h1("Missing Trusts"),
+                     tableOutput("missingTrusts")))
+                )
+              )
+            )
     )
+           
   )
+
+    

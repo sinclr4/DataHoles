@@ -40,3 +40,8 @@ sparql.getMissingDataPointsByDatasetId <- function(datasetId){
   result <- sparql.executeQuery(sparql_endpoint, queries.getMissingDataPointsById(datasetId))
   result
 }
+
+sparql.getTrusts  <- function(){
+  result <- sparql.executeQuery(sparql_endpoint, list_of_trusts_from_swirrl_for_pdw)
+  result
+}

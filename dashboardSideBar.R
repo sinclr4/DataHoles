@@ -9,8 +9,9 @@ dashboard_sidebar <-   dashboardSidebar(
     menuItem("Mental Health Trusts", tabName = "mentalHealthTrusts", icon = icon("th"), 
              badgeLabel = "new", badgeColor = "green"),
     menuItem("All Datasets missing datapoints", tabName = "missingDatasets", icon = icon("th"), 
+             badgeLabel = "new", badgeColor = "green"),
+    menuItem("All Trusts", tabName = "allTrusts", icon = icon("th"), 
              badgeLabel = "new", badgeColor = "green")
     
-    #uiOutput("menuItemsDatasets")
   )
 )
