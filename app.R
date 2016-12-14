@@ -3,6 +3,7 @@ library(shinydashboard)
 library(SPARQL)
 library(curl)
 library(httr)
+library(data.table)
 source("dashboardHeader.R")
 source("dashboardSideBar.R")
 source("dashboardBody.R")
@@ -15,6 +16,7 @@ source("SparqlQueries/missingDataPointsPDWQueryDefinition.R")
 source("SparqlQueries/worstMentalHealthOrgsQueryDefinition.R")
 source("SparqlQueries/totalUpdatesLastWeekQueryDefinition.R")
 source("SparqlQueries/parameterisedMissingDataPoints.R")
+source("SparqlQueries/getTrustsFromSwirrl.R")
 source("ScorecardWebApiQueries/getResultsViews.R")
 source("ScorecardWebApiQueries/getMentalHealthTrusts.R")
 
@@ -127,6 +129,40 @@ server <- function(input, output) {
     paste("You selected the following dataset: ", input$selectedOptionId)
   })
   
+  
+  # All Trusts
+  allTrusts <- sparql.getTrusts()
+  output$numberOfTrusts <- renderText(paste("There are currently ", (length(allTrusts[,1])), "Trusts in the Publish My Data Platform.")) 
+
+  
+  d <- sapply(strsplit(as.character(allTrusts[,1]), "/"), tail, 1)
+  nacsCodes <-  substr(d, 1, nchar(d)-1)
+
+  allTrustsWithNacsCodes <- cbind(allTrusts, nacsCodes)
+  names(allTrustsWithNacsCodes) <- c("Sparql Endpoint Id", "Trust Name", "NACS Code")
+  output$allTrusts <- renderTable(allTrustsWithNacsCodes)
+  
+  
+  trustsAndNacsCodesInSwirrl <- allTrustsWithNacsCodes[,2:3]
+  trustsAndNacsCodesInWebApi <- organisationsData[,c(2,15)]
+  
+  missingtrustsNacsCodes <- setdiff(trustsAndNacsCodesInWebApi[,2], trustsAndNacsCodesInSwirrl[,2])
+  
+  missingTrusts <- trustsAndNacsCodesInWebApi[trustsAndNacsCodesInWebApi[,2] %in% missingtrusts,]
+  output$missingTrusts <- renderTable(missingTrusts) 
+  
+  output$mentalHealthTrusts2 <- renderTable(organisationsData)
+  
+  output$missingTrustsBox <- renderInfoBox({
+    infoBox(
+      "Missing Trusts", paste0(length(missingTrusts[,1])), icon = icon("list"),
+      color = "green"
+    )
+  })
+  
+  
   }
 
 shinyApp(ui, server)
+
+
