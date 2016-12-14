@@ -146,18 +146,18 @@ server <- function(input, output) {
   trustsAndNacsCodesInSwirrl <- allTrustsWithNacsCodes[,2:3]
   trustsAndNacsCodesInWebApi <- organisationsData[,c(2,15)]
   
-  missingtrustsNacsCodes <- setdiff(trustsAndNacsCodesInWebApi[,2], trustsAndNacsCodesInSwirrl[,2])
+  missingTrustsNacsCodes <- setdiff(trustsAndNacsCodesInWebApi[,2], trustsAndNacsCodesInSwirrl[,2])
   
-  missingTrusts <- trustsAndNacsCodesInWebApi[trustsAndNacsCodesInWebApi[,2] %in% missingtrusts,]
-  output$missingTrusts <- renderTable(missingTrusts) 
+  diffTrusts <- trustsAndNacsCodesInWebApi[trustsAndNacsCodesInWebApi[,2] %in% missingTrustsNacsCodes,]
+  output$missingTrusts <- renderTable(diffTrusts) 
   
   output$mentalHealthTrusts2 <- renderTable(organisationsData)
   
-  output$countMissingTrusts <- renderText(paste("There are currently ", length(missingTrusts[,1]), "missing Trusts"))
+  output$countMissingTrusts <- renderText(paste("There are currently ", length(diffTrusts[,1]), "missing Trusts"))
   
   output$missingTrustsBox <- renderInfoBox({
     infoBox(
-      "Missing Trusts", paste0(length(missingTrusts[,1])), icon = icon("list"),
+      "Missing Trusts", paste0(length(diffTrusts[,1])), icon = icon("list"),
       color = "green"
     )
   })
