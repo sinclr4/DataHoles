@@ -5,8 +5,8 @@ dashboard_body <- dashboardBody(
     tabItem(tabName = 'intro',
             fluidRow(h1("Shiny Dataholes Firebreak")),
             fluidRow(
-              div("This idea is to use R, Shiny and SPARQL to get the data from http://nhs.publishmydata.com"), 
-               div(" to show the organisations that haven't provided us with all the data we need.")),
+              h3("This idea is to use R, Shiny and SPARQL to get the data from http://nhs.publishmydata.com"), 
+              h3(" to show the organisations that haven't provided us with all the data we need.")),
     imageOutput("logo")),
     
     tabItem(tabName = 'system',
@@ -23,7 +23,7 @@ dashboard_body <- dashboardBody(
     
     tabItem(tabName = 'datasets', 
             fluidRow(h1("Datasets")),
-            fluidRow(p("List of all datasets currently in nhs.publishmydata.com")),
+            fluidRow(p("List of all datasets currently in nhs.phublishmydata.com")),
             fluidRow(tableOutput('datasets'))),
     
     tabItem(tabName = 'orgs', 
@@ -31,14 +31,23 @@ dashboard_body <- dashboardBody(
             fluidRow(tableOutput('orgsdatasets'))),
     
     tabItem(tabName = 'resultsViews',
-            fluidRow(h1("Results Views")),
+            fluidRow(
+              h1("Results Views"),
+              h3("This is a list of Results Views and associated Metric Groups in our existing Scorecard Database"),
+              h4(a("http://mynhs-scorecard-webapi-integration.azurewebsites.net/api/shinydataholes/resultsviews", 
+                   href = "http://mynhs-scorecard-webapi-integration.azurewebsites.net/api/shinydataholes/resultsviews"))),
             fluidRow(tableOutput('resultsViews'))),
     
     tabItem(tabName = 'mentalHealthTrusts', 
-            fluidRow(h1("Mental Health Trusts")),
+            fluidRow(
+              h1("Mental Health Trusts"),
+              h3("This is a list of Mental Health Trusts in our Scorecard Database"),
+              h4(a("http://mynhs-scorecard-webapi-integration.azurewebsites.net/api/shinydataholes/OrganisationsByResultsViewId/1054", 
+                   href = "http://mynhs-scorecard-webapi-integration.azurewebsites.net/api/shinydataholes/OrganisationsByResultsViewId/1054"))
+              ),
             fluidRow(tableOutput('mentalHealthTrusts'))),
 
-    tabItem(tabName = 'missingDatasets',
+      tabItem(tabName = 'missingDatasets',
             fluidRow(
               h1("Missing Datapoints")),
             fluidRow(
@@ -58,14 +67,17 @@ dashboard_body <- dashboardBody(
               tabsetPanel(
                 tabPanel("Scorecard Api", 
                    fluidRow(
+                     h3("List of Mental Health Trusts in Scorecard Database"),
                      textOutput("numberOfTrusts"),
                       tableOutput("mentalHealthTrusts2"))),
                 tabPanel("Publish My Data",  
                    fluidRow(
+                     h3("List of Trusts in nhs.PublishMyData.com"),
                      tableOutput('allTrusts'))),
                 tabPanel("Missing", 
                    fluidRow(
-                     h1("Missing Trusts"),
+                     h3("Missing Trusts"),
+                     textOutput("countMissingTrusts"),
                      tableOutput("missingTrusts")))
                 )
               )
