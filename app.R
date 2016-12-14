@@ -109,7 +109,8 @@ server <- function(input, output) {
   selected_dataset <- vector_selectOptions[1]
 
   output$datasetSelector <- renderUI({
-    selectInput("selectedOptionId", "Choose Option:", as.list(vector_selectOptions), selected_dataset) 
+    selectInput("selectedOptionId", "Choose Option:", as.list(vector_selectOptions, selected = NULL,  
+                                                              width = validateCssUnit("600px")), selected_dataset) 
   })
   
   # values <- reactiveValues(df_data = NULL)
