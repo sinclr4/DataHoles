@@ -153,6 +153,8 @@ server <- function(input, output) {
   
   output$mentalHealthTrusts2 <- renderTable(organisationsData)
   
+  output$countMissingTrusts <- renderText(paste("There are currently ", length(missingTrusts[,1]), "missing Trusts"))
+  
   output$missingTrustsBox <- renderInfoBox({
     infoBox(
       "Missing Trusts", paste0(length(missingTrusts[,1])), icon = icon("list"),
