@@ -78,7 +78,7 @@ dashboard_body <- dashboardBody(
             
             fluidRow(
               column(12, h1("Mental Health Trusts"),
-                     p("This demostrates finding differences in datasets between out existing Scorecard Api and the data currently loaded into publishmydata."))),
+                     p("This demostrates finding differences in datasets between our existing Scorecard Api and the data currently loaded into publishmydata."))),
 
             
             fluidRow(
