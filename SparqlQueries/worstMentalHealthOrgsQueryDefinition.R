@@ -18,4 +18,5 @@ PREFIX dcterms: <http://purl.org/dc/terms/>
   ?refOrg rdfs:label ?org_name
   }
   Group By ?org_name 
-  Order By ?count'
+  Order By ?count
+  LIMIT 10'

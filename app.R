@@ -156,12 +156,12 @@ server <- function(input, output) {
   
   output$countMissingTrusts <- renderText(paste("There are currently ", length(diffTrusts[,1]), "missing Trusts"))
   
-  output$missingTrustsBox <- renderInfoBox({
-    infoBox(
-      "Missing Trusts", paste0(length(diffTrusts[,1])), icon = icon("list"),
-      color = "green"
-    )
-  })
+##  output$missingTrustsBox <- renderInfoBox({
+  ##    infoBox(
+  ##      "Missing Trusts", paste0(length(diffTrusts[,1])), icon = icon("list"),
+  ##      color = "green"
+  ##    )
+  ##  })
   
   
   }
